@@ -12,7 +12,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(Product::all());
     }
 
     /**
@@ -28,7 +28,16 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'image' => 'required|url',
+            'price' => 'required|numeric',
+            'description' => 'nullable|string',
+            'stock' => 'required|integer|min:0',
+        ]);
+
+        $product = Product::create($data);
+        return response()->json($product, 201);
     }
 
     /**
@@ -52,7 +61,16 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        $data = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'image' => 'sometimes|required|url',
+            'price' => 'sometimes|required|numeric',
+            'description' => 'sometimes|nullable|string',
+            'stock' => 'sometimes|required|integer|min:0',
+        ]);
+
+        $product->update($data);
+        return response()->json($product);
     }
 
     /**
@@ -60,6 +78,7 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        $product->delete();
+        return response()->json(['message' => '刪除成功']);
     }
 }
