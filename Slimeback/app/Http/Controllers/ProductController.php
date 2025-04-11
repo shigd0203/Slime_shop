@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    // 強制回傳 JSON
+    public function __construct()
+    {
+        request()->headers->set('Accept', 'application/json');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -30,14 +35,19 @@ class ProductController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'image' => 'required|url',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'price' => 'required|numeric',
             'description' => 'nullable|string',
             'stock' => 'required|integer|min:0',
         ]);
 
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('image', 'public');
+            $data['image'] = '/storage/' . $imagePath;
+        }
+
         $product = Product::create($data);
-        return response()->json($product, 201);
+        return response()->json(["message" => "新增成功", "product" => $product], 201);
     }
 
     /**
